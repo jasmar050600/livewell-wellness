@@ -1,16 +1,17 @@
-// C:\Users\jasma\OneDrive\Desktop\Livewell Wellness\Livewell\src\config\axios.js
-
+// src/config/axios.js
 import axios from 'axios';
-import apiConfig from './api';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:1337',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
-  }
+  },
+  // Add timeout
+  timeout: 10000,
 });
 
-// Add a request interceptor
 axiosInstance.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token');
@@ -20,6 +21,21 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   error => {
+    return Promise.reject(error);
+  }
+);
+
+// Add response interceptor for better error handling
+axiosInstance.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.code === 'ERR_NETWORK') {
+      console.error('Network error occurred');
+      // Handle network error (e.g., API is down)
+    } else if (error.response?.status === 403) {
+      console.error('CORS error might have occurred');
+      // Handle CORS error
+    }
     return Promise.reject(error);
   }
 );
