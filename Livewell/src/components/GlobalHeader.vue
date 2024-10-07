@@ -37,7 +37,7 @@
           </div>
         </nav>
       </div>
-      <div v-if="isLoggedIn" class="user-greeting">
+      <div v-if="isLoggedIn && user" class="user-greeting">
         {{ greeting }} {{ user.username }}
       </div>
     </div>
@@ -67,18 +67,20 @@ export default {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await axios.get('http://localhost:1337/api/users/me', {
-            headers: {
-              Authorization: `Bearer ${token}`
-            }
-          });
+          const response = await axiosInstance.get('/api/users/me');
+          console.log('User data response:', response.data);
+
           user.value = response.data;
           isLoggedIn.value = true;
         } catch (error) {
           console.error('Error fetching user data:', error);
           localStorage.removeItem('token');
           isLoggedIn.value = false;
+          user.value = null;
         }
+      } else {
+        isLoggedIn.value = false;
+        user.value = null;
       }
     };
 
@@ -147,7 +149,8 @@ export default {
   align-items: center;
 }
 
-.left-section, .right-section {
+.left-section,
+.right-section {
   flex: 1;
   display: flex;
   align-items: center;
@@ -170,7 +173,7 @@ export default {
   transform: translate(-50%, -50%);
   text-align: center;
   z-index: 10;
-  
+
 }
 
 .logo-link {
@@ -231,7 +234,7 @@ export default {
   top: 100%;
   left: 0;
   background-color: #ffffff;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   padding: 0.5rem 0;
   z-index: 1000;
