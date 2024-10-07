@@ -44,10 +44,34 @@
   </header>
 </template>
 
+BL
+Sending registration data: {
+  "username": "test user",
+  "email": "test@gmail.com",
+  "password": "12345678"
+}
+index-9Kb3op_r.js:52 Registration successful: Object
+index-9Kb3op_r.js:52  Error fetching user data: ReferenceError: axiosInstance is not defined
+    at s (index-9Kb3op_r.js:52:4963)
+    at Ir (index-9Kb3op_r.js:13:38)
+    at yt (index-9Kb3op_r.js:13:109)
+    at a.call (index-9Kb3op_r.js:13:29021)
+    at O (index-9Kb3op_r.js:9:15991)
+    at Ir (index-9Kb3op_r.js:13:46)
+    at Fc (index-9Kb3op_r.js:13:1846)
+
+
+It looks like there's an error because axiosInstance is not defined in your GlobalHeader component. Let's fix this by properly importing and using axiosInstance.
+
+Update your GlobalHeader.vue like this:
+
+javascript
+
+Copy
 <script>
 import { ref, computed, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
-import axios from 'axios';
+import axiosInstance from '@/config/axios';  // Add this import
 
 export default {
   name: 'GlobalHeader',
@@ -69,12 +93,12 @@ export default {
         try {
           const response = await axiosInstance.get('/api/users/me');
           console.log('User data response:', response.data);
-
           user.value = response.data;
           isLoggedIn.value = true;
         } catch (error) {
           console.error('Error fetching user data:', error);
           localStorage.removeItem('token');
+          localStorage.removeItem('user');
           isLoggedIn.value = false;
           user.value = null;
         }
@@ -86,13 +110,18 @@ export default {
 
     const logout = () => {
       localStorage.removeItem('token');
+      localStorage.removeItem('user');
       isLoggedIn.value = false;
       user.value = null;
       router.push('/');
     };
 
-    onMounted(fetchUserData);
+    onMounted(() => {
+      console.log('GlobalHeader mounted');
+      fetchUserData();
+    });
 
+    // Update user data when route changes
     watch(() => router.currentRoute.value.path, fetchUserData);
 
     return {
@@ -100,7 +129,7 @@ export default {
       isLoggedIn,
       greeting,
       logout,
-      router
+      fetchUserData
     };
   },
   data() {
