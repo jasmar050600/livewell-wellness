@@ -1,5 +1,5 @@
 // src/config/api.js
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:1337';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 export default {
   LOGIN_URL: `${API_BASE_URL}/api/auth/local`,

@@ -8,8 +8,7 @@ const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  // Add timeout
-  timeout: 10000,
+  withCredentials: true
 });
 
 axiosInstance.interceptors.request.use(
@@ -21,21 +20,6 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   error => {
-    return Promise.reject(error);
-  }
-);
-
-// Add response interceptor for better error handling
-axiosInstance.interceptors.response.use(
-  response => response,
-  error => {
-    if (error.code === 'ERR_NETWORK') {
-      console.error('Network error occurred');
-      // Handle network error (e.g., API is down)
-    } else if (error.response?.status === 403) {
-      console.error('CORS error might have occurred');
-      // Handle CORS error
-    }
     return Promise.reject(error);
   }
 );
